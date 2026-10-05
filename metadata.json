@@ -1,0 +1,6 @@
+{
+  "name": "محارب الأمن السيبراني — حارس الفضاء الرقمي",
+  "description": "لعبة تعليمية تفاعلية مشوقة لطلبة الصف التاسع الأساسي في مبحث المهارات الرقمية حول درس الجريمة الإلكترونية، تصميم وإعداد الأستاذ عامر كراجه.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
