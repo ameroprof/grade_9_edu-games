@@ -21,12 +21,14 @@ interface TacticalMapProps {
   stats: PlayerStats;
   onSelectStage: (stageId: number) => void;
   onOpenReport: () => void;
+  onBackToWorld?: () => void;
 }
 
 export const TacticalMap: React.FC<TacticalMapProps> = ({
   stats,
   onSelectStage,
-  onOpenReport
+  onOpenReport,
+  onBackToWorld
 }) => {
   const isStageUnlocked = (stageId: number) => {
     if (stageId === 1) return true;
@@ -71,19 +73,33 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               </p>
             </div>
 
-            {/* Tactical Stats Badge */}
-            <div className="flex items-center gap-3 bg-slate-950/70 p-3 rounded-xl border border-cyan-900/40">
-              <div className="text-center px-2">
-                <div className="text-[11px] text-slate-400 font-medium">القطاعات المُحررة</div>
-                <div className="text-lg sm:text-xl font-black text-cyan-400 font-mono">
-                  {completedCount} / {GAME_STAGES.length}
+            {/* Tactical Stats Badge & Navigation */}
+            <div className="flex flex-wrap items-center gap-3">
+              {onBackToWorld && (
+                <button
+                  onClick={() => {
+                    soundManager.playClick();
+                    onBackToWorld();
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs transition-all shadow-md shadow-cyan-600/30 flex items-center gap-1.5"
+                >
+                  <span>العودة لعالم المدينة 🎮</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-3 bg-slate-950/70 p-3 rounded-xl border border-cyan-900/40">
+                <div className="text-center px-2">
+                  <div className="text-[11px] text-slate-400 font-medium">القطاعات المُحررة</div>
+                  <div className="text-lg sm:text-xl font-black text-cyan-400 font-mono">
+                    {completedCount} / {GAME_STAGES.length}
+                  </div>
                 </div>
-              </div>
-              <div className="w-px h-8 bg-slate-800" />
-              <div className="text-center px-2">
-                <div className="text-[11px] text-slate-400 font-medium">منطقة الأمان (Safe Zone)</div>
-                <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono">
-                  {progressPercent}%
+                <div className="w-px h-8 bg-slate-800" />
+                <div className="text-center px-2">
+                  <div className="text-[11px] text-slate-400 font-medium">منطقة الأمان (Safe Zone)</div>
+                  <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono">
+                    {progressPercent}%
+                  </div>
                 </div>
               </div>
             </div>

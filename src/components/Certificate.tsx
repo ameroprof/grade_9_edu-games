@@ -98,15 +98,23 @@ export const Certificate: React.FC<CertificateProps> = ({ student, stats, onBack
           الخاصة بدرس الجريمة الإلكترونية (الصفحات 32 إلى 41)
         </p>
 
-        {/* Score Stamp */}
-        <div className="inline-flex items-center gap-3 bg-amber-950/40 border border-amber-500/60 px-6 py-2.5 rounded-2xl mb-8">
-          <span className="text-xs sm:text-sm font-bold text-slate-300">وحصل على علامة نهائية:</span>
-          <span className="text-2xl sm:text-3xl font-black font-mono text-amber-400">
-            {stats.score} / 100
-          </span>
-          <span className="text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700">
-            {stats.score >= 85 ? "خبير أمن سيبراني" : stats.score >= 60 ? "حارس متقدم" : "مشارك مجتهد"}
-          </span>
+        {/* Score and Level Stamp */}
+        <div className="inline-flex flex-wrap items-center justify-center gap-4 bg-amber-950/40 border border-amber-500/60 px-6 py-2.5 rounded-2xl mb-8">
+          <div>
+            <span className="text-xs text-slate-300 block mb-0.5">النتيجة النهائية:</span>
+            <span className="text-2xl sm:text-3xl font-black font-mono text-amber-400">
+              {stats.score} / 100
+            </span>
+          </div>
+
+          <div className="w-px h-8 bg-amber-700/60 hidden sm:block" />
+
+          <div>
+            <span className="text-xs text-slate-300 block mb-0.5">المستوى المحقق:</span>
+            <span className="text-sm sm:text-base font-black text-cyan-300 font-game">
+              {stats.levelTitle || `المستوى ${stats.level}`}
+            </span>
+          </div>
         </div>
 
         {/* Footer Signatures */}

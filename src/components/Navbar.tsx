@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Heart, Zap, Volume2, VolumeX, MapPin, Award, UserCheck, Terminal } from 'lucide-react';
+import { Shield, Heart, Zap, Volume2, VolumeX, MapPin, Award, UserCheck, Gamepad2, Backpack } from 'lucide-react';
 import { PlayerStats, StudentInfo, GameView } from '../types/game';
 import { soundManager } from '../utils/sound';
 
@@ -10,6 +10,7 @@ interface NavbarProps {
   currentStageId: number;
   onNavigate: (view: GameView) => void;
   onOpenTeacherMode: () => void;
+  onOpenInventory?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,7 +19,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   currentStageId,
   onNavigate,
-  onOpenTeacherMode
+  onOpenTeacherMode,
+  onOpenInventory
 }) => {
   const [isMuted, setIsMuted] = React.useState(soundManager.isMuted);
 
@@ -31,17 +33,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-cyan-900/50 px-3 sm:px-6 py-2.5">
+    <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-cyan-900/50 px-3 sm:px-6 py-2.5">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         {/* Zone 1: Brand & Student Lockup */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <button
             onClick={() => {
               soundManager.playClick();
-              onNavigate('TACTICAL_MAP');
+              onNavigate('WORLD_ADVENTURE');
             }}
             className="flex items-center gap-2 text-right group focus:outline-none"
-            title="العودة للخريطة التكتيكية"
+            title="العودة لعالم المدينة الرقمية"
           >
             <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
               <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -59,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Zone 2: Combat Stats HUD (XP, Level, Score, Hearts) */}
-        <div className="flex items-center gap-2 sm:gap-5">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Hearts / Health */}
           <div className="flex items-center gap-1 bg-slate-900/80 px-2 sm:px-3 py-1.5 rounded-lg border border-slate-800">
             {[1, 2, 3].map((heartIndex) => (
@@ -85,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Final Score out of 100 */}
-          <div className="flex items-center gap-1.5 bg-cyan-950/60 px-3 py-1.5 rounded-lg border border-cyan-800/60">
+          <div className="flex items-center gap-1.5 bg-cyan-950/60 px-2.5 sm:px-3 py-1.5 rounded-lg border border-cyan-800/60">
             <span className="text-xs text-slate-400 hidden sm:inline">العلامة:</span>
             <span className="text-sm sm:text-base font-bold font-mono text-cyan-300 tabular-nums">
               {stats.score}/100
@@ -93,8 +95,24 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Zone 3: Tactical Navigation & Settings */}
+        {/* Zone 3: Navigation & Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            onClick={() => {
+              soundManager.playClick();
+              onNavigate('WORLD_ADVENTURE');
+            }}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border ${
+              currentView === 'WORLD_ADVENTURE'
+                ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+            }`}
+            title="عالم المدينة الرقمية"
+          >
+            <Gamepad2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">عالم اللعبة</span>
+          </button>
+
           <button
             onClick={() => {
               soundManager.playClick();
@@ -108,7 +126,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="الخريطة والقطاعات"
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">الخريطة</span>
+            <span className="hidden sm:inline">القطاعات</span>
           </button>
 
           <button

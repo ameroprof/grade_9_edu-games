@@ -11,6 +11,7 @@ interface StudentReportProps {
   onOpenCertificate: () => void;
   onRestart: () => void;
   onBackToMap: () => void;
+  onBackToWorld?: () => void;
 }
 
 export const StudentReport: React.FC<StudentReportProps> = ({
@@ -18,7 +19,8 @@ export const StudentReport: React.FC<StudentReportProps> = ({
   stats,
   onOpenCertificate,
   onRestart,
-  onBackToMap
+  onBackToMap,
+  onBackToWorld
 }) => {
   const durationSeconds = stats.endTime 
     ? Math.round((stats.endTime - stats.startTime) / 1000)
@@ -199,6 +201,17 @@ export const StudentReport: React.FC<StudentReportProps> = ({
         {/* Navigation & Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-800">
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            {onBackToWorld && (
+              <button
+                onClick={() => {
+                  soundManager.playClick();
+                  onBackToWorld();
+                }}
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs transition-all shadow-md shadow-cyan-600/20"
+              >
+                عالم اللعبة 🎮
+              </button>
+            )}
             <button
               onClick={() => {
                 soundManager.playClick();
@@ -206,7 +219,7 @@ export const StudentReport: React.FC<StudentReportProps> = ({
               }}
               className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700"
             >
-              الخريطة والقطاعات
+              القطاعات
             </button>
             <button
               onClick={() => {

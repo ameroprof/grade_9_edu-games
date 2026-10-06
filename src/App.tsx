@@ -13,6 +13,7 @@ import { TacticalMap } from './components/TacticalMap';
 import { StudentReport } from './components/StudentReport';
 import { Certificate } from './components/Certificate';
 import { TeacherMode } from './components/TeacherMode';
+import { WorldAdventure } from './components/game/WorldAdventure';
 
 // Stage Components
 import { Stage1_Concept } from './components/stages/Stage1_Concept';
@@ -29,6 +30,7 @@ import { Stage11_DigitalCitizen } from './components/stages/Stage11_DigitalCitiz
 import { Stage12_CyberBoss } from './components/stages/Stage12_CyberBoss';
 
 import { BADGES_LIST } from './data/lessons';
+import { INITIAL_INVENTORY_ITEMS, LEVEL_TITLES } from './data/world';
 import { soundManager } from './utils/sound';
 
 export default function App() {
@@ -41,21 +43,29 @@ export default function App() {
     score: 0,
     xp: 0,
     level: 1,
+    levelTitle: LEVEL_TITLES[0].title,
     hearts: 3,
     correctAnswers: 0,
     wrongAnswers: 0,
+    threatsNeutralized: 0,
     completedStages: [],
     unlockedBadges: [],
+    inventory: INITIAL_INVENTORY_ITEMS,
     startTime: Date.now()
   });
 
-  // Calculate Level based on XP
+  // Calculate Level and Title based on XP
   useEffect(() => {
-    const computedLevel = Math.max(1, Math.floor(stats.xp / 120) + 1);
-    if (computedLevel !== stats.level) {
-      setStats(prev => ({ ...prev, level: computedLevel }));
+    const computedLevel = Math.min(5, Math.max(1, Math.floor(stats.xp / 140) + 1));
+    const titleObj = LEVEL_TITLES.find(l => l.level === computedLevel) || LEVEL_TITLES[0];
+    if (computedLevel !== stats.level || titleObj.title !== stats.levelTitle) {
+      setStats(prev => ({
+        ...prev,
+        level: computedLevel,
+        levelTitle: titleObj.title
+      }));
     }
-  }, [stats.xp, stats.level]);
+  }, [stats.xp, stats.level, stats.levelTitle]);
 
   // Save/Update Teacher Record in LocalStorage
   const saveStudentRecord = (currentStats: PlayerStats) => {
@@ -71,6 +81,8 @@ export default function App() {
         section: student.section,
         score: currentStats.score,
         xp: currentStats.xp,
+        level: currentStats.level,
+        threatsNeutralized: currentStats.threatsNeutralized,
         correctAnswers: currentStats.correctAnswers,
         wrongAnswers: currentStats.wrongAnswers,
         completedStagesCount: currentStats.completedStages.length,
@@ -96,25 +108,36 @@ export default function App() {
       score: 0,
       xp: 0,
       level: 1,
+      levelTitle: LEVEL_TITLES[0].title,
       hearts: 3,
       correctAnswers: 0,
       wrongAnswers: 0,
+      threatsNeutralized: 0,
       completedStages: [],
       unlockedBadges: [],
+      inventory: INITIAL_INVENTORY_ITEMS,
       startTime: Date.now()
     });
-    setView('TACTICAL_MAP');
+    // Start directly into the 2D Cyber City Adventure World!
+    setView('WORLD_ADVENTURE');
   };
 
   const handleWrongAnswer = () => {
     setStats(prev => {
-      const nextHearts = prev.hearts > 1 ? prev.hearts - 1 : 3; // Refill on zero so student is never stuck
+      const nextHearts = prev.hearts > 1 ? prev.hearts - 1 : 3;
       return {
         ...prev,
         wrongAnswers: prev.wrongAnswers + 1,
         hearts: nextHearts
       };
     });
+  };
+
+  const handleRestoreHearts = () => {
+    setStats(prev => ({
+      ...prev,
+      hearts: 3
+    }));
   };
 
   const handleCompleteStage = (scoreEarned: number, xpEarned: number) => {
@@ -125,6 +148,7 @@ export default function App() {
       // Calculate score out of 100 dynamically
       const newScore = Math.min(100, Math.round((updatedStages.length / 12) * 100));
       const newXp = prev.xp + xpEarned;
+      const newThreats = prev.threatsNeutralized + 1;
 
       // Unlock badges
       const newBadges = [...prev.unlockedBadges];
@@ -158,6 +182,7 @@ export default function App() {
         score: newScore,
         xp: newXp,
         correctAnswers: prev.correctAnswers + 1,
+        threatsNeutralized: newThreats,
         completedStages: updatedStages,
         unlockedBadges: newBadges,
         endTime: updatedStages.length === 12 ? Date.now() : prev.endTime
@@ -171,14 +196,14 @@ export default function App() {
   const handleNextStage = () => {
     soundManager.playClick();
     if (currentStageId < 12) {
-      setCurrentStageId(prev => prev + 1);
-      setView('STAGE');
+      // Return to World Adventure so player journeys to the next district!
+      setView('WORLD_ADVENTURE');
     } else {
       setView('REPORT');
     }
   };
 
-  const handleSelectStageFromMap = (stageId: number) => {
+  const handleLaunchStage = (stageId: number) => {
     setCurrentStageId(stageId);
     setView('STAGE');
   };
@@ -190,15 +215,18 @@ export default function App() {
         score: 0,
         xp: 0,
         level: 1,
+        levelTitle: LEVEL_TITLES[0].title,
         hearts: 3,
         correctAnswers: 0,
         wrongAnswers: 0,
+        threatsNeutralized: 0,
         completedStages: [],
         unlockedBadges: [],
+        inventory: INITIAL_INVENTORY_ITEMS,
         startTime: Date.now()
       });
       setCurrentStageId(1);
-      setView('TACTICAL_MAP');
+      setView('WORLD_ADVENTURE');
     } else {
       setView('START');
     }
@@ -227,16 +255,42 @@ export default function App() {
           />
         )}
 
+        {view === 'WORLD_ADVENTURE' && student && (
+          <WorldAdventure
+            student={student}
+            stats={stats}
+            onLaunchStage={handleLaunchStage}
+            onOpenReport={() => setView('REPORT')}
+            onOpenTeacherMode={() => setIsTeacherModeOpen(true)}
+            onOpenMap={() => setView('TACTICAL_MAP')}
+            onRestoreHearts={handleRestoreHearts}
+          />
+        )}
+
         {view === 'TACTICAL_MAP' && (
           <TacticalMap
             stats={stats}
-            onSelectStage={handleSelectStageFromMap}
+            onSelectStage={handleLaunchStage}
             onOpenReport={() => setView('REPORT')}
+            onBackToWorld={() => setView('WORLD_ADVENTURE')}
           />
         )}
 
         {view === 'STAGE' && (
           <div className="w-full">
+            {/* Quick Button to return to World Adventure */}
+            <div className="max-w-4xl mx-auto px-3 sm:px-6 pt-3 flex justify-start">
+              <button
+                onClick={() => {
+                  soundManager.playClick();
+                  setView('WORLD_ADVENTURE');
+                }}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              >
+                <span>العودة لمدينة الفضاء الرقمي 🏙️</span>
+              </button>
+            </div>
+
             {currentStageId === 1 && (
               <Stage1_Concept
                 onComplete={handleCompleteStage}
@@ -331,6 +385,7 @@ export default function App() {
             onOpenCertificate={() => setView('CERTIFICATE')}
             onRestart={handleRestart}
             onBackToMap={() => setView('TACTICAL_MAP')}
+            onBackToWorld={() => setView('WORLD_ADVENTURE')}
           />
         )}
 
